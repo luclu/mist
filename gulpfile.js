@@ -45,7 +45,7 @@ let applicationName = 'Mist';
 const electronVersion = require('electron/package.json').version;
 const packJson = require('./package.json');
 
-const version = packJson.version;
+let version = packJson.version;
 
 const osArchList = [
     'mac-x64',
@@ -356,10 +356,11 @@ gulp.task('release-dist', ['build-dist'], (done) => {
     done();
 });
 
-gulp.task('upload-binaries', (cb) => {
+gulp.task('upload-binaries', () => {
     // token must be set using travis' ENVs
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
+    version = '0.8.9';
     // query github releases
     return got(`https://api.github.com/repos/luclu/mist/releases?access_token=${GITHUB_TOKEN}`, {
         json: true,
@@ -379,7 +380,7 @@ gulp.task('upload-binaries', (cb) => {
     })
     // upload binaries from release folders
     .then((draft) => {
-        if (draft && draft.assets.length !== 0) throw new Error('Github release draft already contains assets; will not upload');
+        if (draft && draft.assets.length !== 0) throw new Error('Github release draft already contains assets; will not upload; please remove and trigger rebuild');
 
         const dir = `dist_${type}/release`;
         const binaries = _.map(fs.readdirSync(dir), (file) => { return path.join(dir, file); });
@@ -390,8 +391,6 @@ gulp.task('upload-binaries', (cb) => {
             assets: binaries,
         }).then((res) => {
             console.log(`Successfully uploaded ${res}`);
-
-            cb();
         });
     })
     .catch((err) => {
@@ -446,9 +445,7 @@ gulp.task('download-signatures', (cb) => {
 });
 
 gulp.task('taskQueue', ['release-dist'], () => {
-    console.log(`TRAVIS_BRANCH: ${process.env.TRAVIS_BRANCH}`)
-    console.log(`TRAVIS_PULL_REQUEST_BRANCH: ${process.env.TRAVIS_PULL_REQUEST_BRANCH}`)
-    if (process.env.CI && process.env.TRAVIS_BRANCH === 'master') {
+    if (process.env.TRAVIS_BRANCH === 'master') {
         runSeq('upload-binaries');
     }
 });
