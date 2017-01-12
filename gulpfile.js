@@ -450,7 +450,7 @@ gulp.task('download-signatures', (cb) => {
 });
 
 gulp.task('taskQueue', ['release-dist'], () => {
-    if (process.env.CI) {
+    if (process.env.CI && process.env.TRAVIS_BRANCH === 'master') {
         runSeq('upload-binaries');
     }
 });
