@@ -366,38 +366,32 @@ gulp.task('upload-binaries', () => {
     })
     // filter draft with current version's tag
     .then((res) => {
-        let draft;
-        res.body.forEach((release) => {
-            if (release.tag_name.match(version)
-            && release.draft === true
-            ) {
-                draft = release;
-            }
-        });
+        const draft = res.body[_.indexOf(_.pluck(res.body, 'tag_name'), `v${version}`)];
+
+        if (draft === undefined) throw new Error(`Couldn't find github release draft for v${version} release tag`);
 
         return draft;
     })
     // upload binaries from release folders
     .then((draft) => {
-        if (draft && draft.assets.length !== 0) throw new Error('Github release draft already contains assets; will not upload; please remove and trigger rebuild');
-
         const dir = `dist_${type}/release`;
-        const binaries = _.map(fs.readdirSync(dir), (file) => { return path.join(dir, file); });
+        const files = fs.readdirSync(dir);
+        const filePaths = _.map(files, (file) => { return path.join(dir, file); });
+
+        // check if draft already contains target binaries
+        const existingAssets = _.intersection(files, _.pluck(draft.assets, 'name'));
+        if (!_.isEmpty(existingAssets)) throw new Error(`Github release draft already contains assets (${existingAssets}); will not upload, please remove and trigger rebuild`);
 
         return githubUpload({
             url: `https://uploads.github.com/repos/luclu/mist/releases/${draft.id}/assets{?name}`,
             token: [GITHUB_TOKEN],
-            assets: binaries,
+            assets: filePaths,
         }).then((res) => {
-            console.log(`Successfully uploaded ${res}`);
+            console.log(`Successfully uploaded ${res} to v${version} release draft.`);
         });
     })
     .catch((err) => {
-        if (err.message === "Cannot read property 'id' of undefined") {
-            console.log(Error(`Couldn't find github release draft for v${version} release tag`));
-        } else {
-            console.log(err);
-        }
+        console.log(err);
     });
 });
 
@@ -443,9 +437,9 @@ gulp.task('download-signatures', (cb) => {
     .catch(cb);
 });
 
-gulp.task('taskQueue', ['release-dist'], () => {
+gulp.task('taskQueue', ['release-dist'], (cb) => {
     if (process.env.TRAVIS_BRANCH === 'master') {
-        runSeq('upload-binaries');
+        runSeq('upload-binaries', cb());
     }
 });
 
