@@ -381,12 +381,8 @@ gulp.task('upload-binaries', (cb) => {
     .then((draft) => {
         if (draft && draft.assets.length !== 0) throw new Error('Github release draft already contains assets; will not upload');
 
-        const dirs = ['dist_wallet/release', 'dist_mist/release'];
-        const files = [];
-        dirs.forEach((dir) => {
-            files.push(_.map(fs.readdirSync(dir), (file) => { return path.join(dir, file); }));
-        });
-        const binaries = _.flatten(files);
+        const dir = `dist_${type}/release`;
+        const binaries = _.map(fs.readdirSync(dir), (file) => { return path.join(dir, file); });
 
         return githubUpload({
             url: `https://uploads.github.com/repos/luclu/mist/releases/${draft.id}/assets{?name}`,
@@ -462,6 +458,12 @@ gulp.task('mist', (cb) => {
 
 // WALLET task
 gulp.task('wallet', (cb) => {
+    runSeq('set-variables-wallet', 'taskQueue', cb);
+});
+
+// CI task
+gulp.task('ci', (cb) => {
+    runSeq('set-variables-mist', 'taskQueue', cb);
     runSeq('set-variables-wallet', 'taskQueue', cb);
 });
 
