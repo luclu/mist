@@ -439,7 +439,7 @@ gulp.task('download-signatures', (cb) => {
 
 gulp.task('taskQueue', ['release-dist'], (cb) => {
     if (process.env.TRAVIS_BRANCH === 'master') {
-        runSeq('upload-binaries', cb());
+        runSeq('upload-binaries', cb);
     }
 });
 
@@ -455,8 +455,7 @@ gulp.task('wallet', (cb) => {
 
 // CI task
 gulp.task('ci', (cb) => {
-    runSeq('set-variables-mist', 'taskQueue', cb);
-    runSeq('set-variables-wallet', 'taskQueue', cb);
+    runSeq('set-variables-mist', 'taskQueue', 'set-variables-wallet', 'taskQueue', cb);
 });
 
 // WALLET task
