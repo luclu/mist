@@ -446,6 +446,8 @@ gulp.task('download-signatures', (cb) => {
 });
 
 gulp.task('taskQueue', ['release-dist'], () => {
+    console.log(`TRAVIS_BRANCH: ${process.env.TRAVIS_BRANCH}`)
+    console.log(`TRAVIS_PULL_REQUEST_BRANCH: ${process.env.TRAVIS_PULL_REQUEST_BRANCH}`)
     if (process.env.CI && process.env.TRAVIS_BRANCH === 'master') {
         runSeq('upload-binaries');
     }
