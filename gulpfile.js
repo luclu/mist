@@ -45,7 +45,7 @@ let applicationName = 'Mist';
 const electronVersion = require('electron/package.json').version;
 const packJson = require('./package.json');
 
-let version = packJson.version;
+const version = packJson.version;
 
 const osArchList = [
     'mac-x64',
@@ -360,7 +360,6 @@ gulp.task('upload-binaries', () => {
     // token must be set using travis' ENVs
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
-    version = '0.8.9';
     // query github releases
     return got(`https://api.github.com/repos/luclu/mist/releases?access_token=${GITHUB_TOKEN}`, {
         json: true,
