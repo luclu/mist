@@ -126,6 +126,7 @@ gulp.task('build-dist', (cb) => {
             win: {
                 target: [
                     'zip',
+                    'nsis',
                 ],
             },
             dmg: {
