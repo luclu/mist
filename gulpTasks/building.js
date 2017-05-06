@@ -111,6 +111,7 @@ gulp.task('build-dist', (cb) => {
         build: {
             appId: `com.ethereum.${type}`,
             asar: true,
+            publish: 'never',
             directories: {
                 buildResources: '../build',
                 output: '../dist'
