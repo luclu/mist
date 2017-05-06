@@ -1,3 +1,8 @@
+const squirrelStartup = require('electron-squirrel-startup');
+// windows only: don't run app during squirrel-install
+function exit() { return; }
+if (squirrelStartup) exit();
+
 
 global._ = require('./modules/utils/underscore');
 const { app, dialog, ipcMain, shell } = require('electron');
@@ -11,7 +16,6 @@ const ClientBinaryManager = require('./modules/clientBinaryManager');
 const UpdateChecker = require('./modules/updateChecker');
 const Settings = require('./modules/settings');
 const Q = require('bluebird');
-const windowStateKeeper = require('electron-window-state');
 
 Q.config({
     cancellation: true,
@@ -192,27 +196,19 @@ onReady = () => {
 
     // Create the browser window.
 
-    const defaultWindow = windowStateKeeper({
-        defaultWidth: 1024 + 208,
-        defaultHeight: 720
-    });
-
     // MIST
     if (Settings.uiMode === 'mist') {
         mainWindow = Windows.create('main', {
             primary: true,
             electronOptions: {
-                width: Math.max(defaultWindow.width, 500),
-                height: Math.max(defaultWindow.height, 440),
-                x: defaultWindow.x,
-                y: defaultWindow.y,
+                width: 1024 + 208,
+                height: 720,
                 webPreferences: {
                     nodeIntegration: true, /* necessary for webviews;
                         require will be removed through preloader */
                     preload: `${__dirname}/modules/preloader/mistUI.js`,
                     'overlay-fullscreen-video': true,
                     'overlay-scrollbars': true,
-                    experimentalFeatures: true,
                 },
             },
         });
@@ -222,10 +218,8 @@ onReady = () => {
         mainWindow = Windows.create('main', {
             primary: true,
             electronOptions: {
-                width: Math.max(defaultWindow.width, 500),
-                height: Math.max(defaultWindow.height, 440),
-                x: defaultWindow.x,
-                y: defaultWindow.y,
+                width: 1100,
+                height: 720,
                 webPreferences: {
                     preload: `${__dirname}/modules/preloader/walletMain.js`,
                     'overlay-fullscreen-video': true,
@@ -234,9 +228,6 @@ onReady = () => {
             },
         });
     }
-
-    // Delegating events to save window bounds on windowStateKeeper
-    defaultWindow.manage(mainWindow.window);
 
     if (!Settings.inAutoTestMode) {
         splashWindow = Windows.create('splash', {
@@ -364,8 +355,7 @@ onReady = () => {
             return ethereumNode.send('eth_accounts', []);
         })
         .then(function onboarding(resultData) {
-            
-            if (ethereumNode.isGeth && (resultData.result === null || (_.isArray(resultData.result) && resultData.result.length === 0))) {
+            if (ethereumNode.isGeth && resultData.result && resultData.result.length === 0) {
                 log.info('No accounts setup yet, lets do onboarding first.');
 
                 return new Q((resolve, reject) => {
@@ -425,7 +415,7 @@ onReady = () => {
                 splashWindow.show();
             }
 
-            if (!Settings.inAutoTestMode) {
+            if (Settings.inAutoTestMode) {
                 return syncResultPromise;
             }
 

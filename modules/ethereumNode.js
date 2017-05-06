@@ -315,14 +315,13 @@ class EthereumNode extends EventEmitter {
         this._network = network;
         this._type = nodeType;
 
-        const client = ClientBinaryManager.getClient(nodeType);
+        let client = ClientBinaryManager.getClient(nodeType);
         let binPath;
 
-        if (client) {
+        if(client)
             binPath = client.binPath;
-        } else {
+        else 
             throw new Error(`Node "${nodeType}" binPath is not available.`);
-        }
 
         log.info(`Start node using ${binPath}`);
 
@@ -359,7 +358,7 @@ class EthereumNode extends EventEmitter {
                 // START MAINNET
                 else {
                     args = (nodeType === 'geth')
-                        ? ['--fast', '--cache', ((process.arch === 'x64') ? '1024' : '512')]
+                        ? ['--fast', '--cache', '1024'] 
                         : ['--unsafe-transactions'];
                 }
 

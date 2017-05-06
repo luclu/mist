@@ -13,10 +13,10 @@ const ClientBinaryManager = require('./clientBinaryManager');
 const switchForSystem = function (options) {
     if (process.platform in options) {
         return options[process.platform];
-    } else if ('default' in options) {
+    }
+    else if ('default' in options) {
         return options.default;
     }
-    return null;
 };
 
 
@@ -245,23 +245,23 @@ let menuTempl = function (webviews) {
         ],
     });
 
-    const genSwitchLanguageFunc = langCode => function (menuItem, browserWindow) {
+    const genSwitchLanguageFunc = lang_code => function (menuItem, browserWindow) {
         browserWindow.webContents.executeJavaScript(
-            `TAPi18n.setLanguage("${langCode}");`
+            `TAPi18n.setLanguage("${lang_code}");`
         );
-        ipc.emit('backendAction_setLanguage', {}, langCode);
+        ipc.emit('backendAction_setLanguage', {}, lang_code);
     };
     const currentLanguage = i18n.getBestMatchedLangCode(global.language);
 
     const languageMenu =
     Object.keys(i18n.options.resources)
-    .filter(langCode => langCode !== 'dev')
-    .map((langCode) => {
-        const menuItem = {
-            label: i18n.t(`mist.applicationMenu.view.langCodes.${langCode}`),
+    .filter(lang_code => lang_code !== 'dev')
+    .map((lang_code) => {
+        menuItem = {
+            label: i18n.t(`mist.applicationMenu.view.langCodes.${lang_code}`),
             type: 'checkbox',
-            checked: (currentLanguage === langCode),
-            click: genSwitchLanguageFunc(langCode),
+            checked: (currentLanguage === lang_code),
+            click: genSwitchLanguageFunc(lang_code),
         };
         return menuItem;
     });
@@ -298,7 +298,7 @@ let menuTempl = function (webviews) {
 
 
     // DEVELOP
-    const devToolsMenu = [];
+    let devToolsMenu = [];
 
     // change for wallet
     if (Settings.uiMode === 'mist') {
@@ -338,40 +338,16 @@ let menuTempl = function (webviews) {
     }
 
     const externalNodeMsg = (ethereumNode.isOwnNode) ? '' : ` (${i18n.t('mist.applicationMenu.develop.externalNode')})`;
-    devToolsMenu.push({
+    devToolsMenu = [{
         label: i18n.t('mist.applicationMenu.develop.devTools'),
         submenu: devtToolsSubMenu,
-    });
-
-    if (Settings.uiMode === 'mist') {
-        devToolsMenu.push({
-            label: i18n.t('mist.applicationMenu.develop.openRemix'),
-            enabled: true,
-            click() {
-                Windows.createPopup('remix', {
-                    url: 'https://remix.ethereum.org',
-                    electronOptions: {
-                        width: 1024,
-                        height: 720,
-                        center: true,
-                        frame: true,
-                        resizable: true,
-                        titleBarStyle: 'default',
-                    }
-                });
-            },
-        });
-    }
-
-    devToolsMenu.push({
+    }, {
         label: i18n.t('mist.applicationMenu.develop.runTests'),
         enabled: (Settings.uiMode === 'mist'),
         click() {
             Windows.getByType('main').send('uiAction_runTests', 'webview');
         },
-    });
-
-    devToolsMenu.push({
+    }, {
         label: i18n.t('mist.applicationMenu.develop.logFiles') + externalNodeMsg,
         enabled: ethereumNode.isOwnNode,
         click() {
@@ -382,7 +358,9 @@ let menuTempl = function (webviews) {
                 log = 'Couldn\'t load log file.';
             }
         },
-    });
+    },
+    ];
+
 
     // add node switching menu
     devToolsMenu.push({

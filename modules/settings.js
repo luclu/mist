@@ -133,6 +133,8 @@ for (const optIdx in argv) {
         if (argv[optIdx] !== true) {
             argv.nodeOptions.push(argv[optIdx]);
         }
+
+        break;
     }
 }
 
@@ -152,11 +154,6 @@ class Settings {
     get userDataPath() {
     // Application Aupport/Mist
         return app.getPath('userData');
-    }
-
-    get dbFilePath() {
-        const dbFileName = (this.inAutoTestMode) ? 'mist.test.lokidb' : 'mist.lokidb';
-        return path.join(this.userDataPath, dbFileName);
     }
 
     get appDataPath() {
@@ -205,14 +202,7 @@ class Settings {
     }
 
     get rpcMode() {
-        if (argv.rpc && argv.rpc.indexOf('http') === 0)
-            return 'http';
-        if (argv.rpc && argv.rpc.indexOf('ws:') === 0) {
-            this._log.warn('Websockets are not yet supported by Mist, using default IPC connection');
-            argv.rpc = null;
-            return 'ipc';
-        } else
-            return 'ipc';
+        return (argv.rpc && argv.rpc.indexOf('.ipc') < 0) ? 'http' : 'ipc';
     }
 
     get rpcConnectConfig() {

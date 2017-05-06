@@ -1,4 +1,6 @@
-const { protocol } = require('electron');
+const electron = require('electron');
+const protocol = electron.protocol;
+const path = require('path');
 
 
 protocol.registerHttpProtocol('mist', (request, callback) => {
@@ -17,9 +19,8 @@ protocol.registerHttpProtocol('mist', (request, callback) => {
 
     callback(call);
 }, (error) => {
-    if (error) {
-        console.error('Failed to register protocol');
-    }
+    if (error)
+      { console.error('Failed to register protocol'); }
 });
 
 

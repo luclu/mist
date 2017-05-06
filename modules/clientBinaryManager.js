@@ -73,8 +73,6 @@ class Manager extends EventEmitter {
             log.warn('Error fetching client binaries config from repo', err);
         })
         .then((latestConfig) => {
-            if(!latestConfig) return;
-
             let localConfig;
             let skipedVersion;
             const nodeVersion = latestConfig.clients[nodeType].version;
@@ -180,9 +178,7 @@ class Manager extends EventEmitter {
         .then((localConfig) => {
             if (!localConfig) {
                 log.info('No config for the ClientBinaryManager could be loaded, using local clientBinaries.json.');
-
-                const localConfigPath = path.join(Settings.userDataPath, 'clientBinaries.json');
-                localConfig = (fs.existsSync(localConfigPath)) ? require(localConfigPath) : require('../clientBinaries.json');  // eslint-disable-line no-param-reassign, global-require, import/no-dynamic-require, import/no-unresolved
+                localConfig = require('../clientBinaries.json');
             }
 
             // scan for node

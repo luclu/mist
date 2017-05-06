@@ -17,7 +17,6 @@ setTimeout(() => {
 }, 1000);
 
 setTimeout(() => {
-    if (document.getElementsByTagName('html')[0]) {
-        document.getElementsByTagName('html')[0].className = window.platform;
-    }
+    if (document.getElementsByTagName('html')[0])
+        { document.getElementsByTagName('html')[0].className = window.platform; }
 }, 500);

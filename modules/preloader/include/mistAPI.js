@@ -56,9 +56,6 @@ module.exports = () => {
 
             ipcRenderer.send('mistAPI_requestAccount');
         },
-        solidity: {
-            version: String(packageJson.dependencies.solc).match(/\d+\.\d+\.\d+/)[0],
-        },
         sounds: {
             bip: function playSound() {
                 ipcRenderer.sendToHost('mistAPI_sound', `file://${__dirname}/../../../sounds/bip.mp3`);
@@ -105,7 +102,7 @@ module.exports = () => {
             @param {Function} callback  Change the callback to be called when the menu is pressed.
             */
             add(id, options, callback) {
-                const args = Array.prototype.slice.call(arguments);
+                var args = Array.prototype.slice.call(arguments);
                 callback = _.isFunction(args[args.length - 1]) ? args.pop() : null;
                 options = _.isObject(args[args.length - 1]) ? args.pop() : null;
                 id = _.isString(args[args.length - 1]) || _.isFinite(args[args.length - 1]) ? args.pop() : null;
