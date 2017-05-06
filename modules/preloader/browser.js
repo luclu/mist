@@ -2,11 +2,9 @@
 @module preloader browser
 */
 require('./include/common')('browser');
+require('./include/ethereumProvider.js');
 const { ipcRenderer } = require('electron');
 const mist = require('./include/mistAPI.js');
-const BigNumber = require('bignumber.js');
-const ipcProviderWrapper = require('../ipc/ipcProviderWrapper.js');
-const Web3 = require('web3');
 require('./include/getFavicon.js');
 require('./include/getMetaTags.js');
 require('./include/setBasePath')('interface');
@@ -18,7 +16,7 @@ ipcRenderer.sendToHost('setWebviewId');
 ipcRenderer.send('ipcProvider-destroy');
 
 // Security
-process.on('loaded',function () {
+process.on('loaded', function () {
     Object.freeze(window.JSON);
     // Object.freeze(window.Function);
     // Object.freeze(window.Function.prototype);
@@ -28,8 +26,6 @@ process.on('loaded',function () {
 
 
 window.mist = mist();
-window.BigNumber = BigNumber;
-window.web3 = new Web3(new Web3.providers.IpcProvider('', ipcProviderWrapper));
 
 // prevent overwriting the Dapps Web3
 delete global.Web3;
